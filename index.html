@@ -487,6 +487,17 @@ a.src::after{content:" ↗"}
   .sheet-nav{flex:none;display:flex;gap:6px}
 }
 
+
+/* ---------- ТЕЛЕФОН: облегчённый рендер (iOS Safari падал на общем плане) ---------- */
+@media (max-width:760px), (max-height:520px) and (max-width:1000px){
+  .world.flying{will-change:auto}
+  .flow{animation:none}
+  .fr-in,.fr::before,.maplbl{transition:none}
+  .fr-in,.fr.cur .fr-in{box-shadow:none}
+  .far .fr-in{opacity:1}
+  .bar{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(255 255 255 / .97)}
+  .fish{filter:none}
+}
 @media (prefers-reduced-motion:reduce){
   .flow,.pin.we,.glint,.lag-hint::before{animation:none}
   .prog i{transition:none}
@@ -3218,7 +3229,7 @@ function drawRiver() {
   const defs = svgEl("defs", {}, svg);
   const pat = svgEl("pattern", { id: "dots", width: 80, height: 80, patternUnits: "userSpaceOnUse" }, defs);
   svgEl("circle", { cx: 2, cy: 2, r: 2.2, fill: "rgb(5 5 23 / .09)" }, pat);
-  svgEl("rect", { x: -2000, y: -2000, width: WORLD.w + 4000, height: WORLD.h + 4000, fill: "url(#dots)" }, svg);
+  if (!mqMobile.matches) svgEl("rect", { x: -2000, y: -2000, width: WORLD.w + 4000, height: WORLD.h + 4000, fill: "url(#dots)" }, svg);
 
   MAIN = catmull(RIVER);
   const total = MAIN[MAIN.length - 1].s;
@@ -3416,7 +3427,10 @@ const next = () => go(mode === "step" ? cur + 1 : Math.max(cur, 0));
 const prev = () => go(mode === "step" ? cur - 1 : Math.max(cur, 0));
 function overview() {
   if (mode === "overview") { go(Math.max(cur, 0)); return; }
-  mode = "overview"; flyTo(overviewTarget()); updateUI();
+  mode = "overview";
+  if (mqMobile.matches) { cancelFly(); cam = overviewTarget(); apply(); } // на телефоне без перелёта: меньше нагрузки на память
+  else flyTo(overviewTarget());
+  updateUI();
 }
 
 /* ---------- таймлайн ---------- */
