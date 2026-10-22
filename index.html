@@ -372,7 +372,15 @@ a.src::after{content:" ↗"}
 .lessons li::before{content:"";width:1.2em;height:1.2em;margin-top:.2em;background:var(--river-300);border-radius:3px}
 .lessons li:nth-child(2)::before{background:var(--cu-lilac)}
 .lessons li:nth-child(3)::before{background:var(--cu-lime)}
-.vs{display:grid;grid-template-columns:1fr 1.15fr;gap:2em;margin-top:1.8em;align-items:stretch;min-height:12em}
+.qtl{list-style:none;margin:1.3em 0 0;padding:0;display:grid;grid-template-columns:repeat(7,1fr);position:relative;font-size:.82em}
+.qtl::before{content:"";position:absolute;left:calc(100%/14);right:calc(100%/14);top:1.05em;height:3px;background:var(--river-400);border-radius:2px}
+.qtl li{position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:.45em;padding:0 .25em}
+.qtl i{font:700 1em/2.1em "JetBrains Mono",monospace;font-style:normal;width:2.1em;height:2.1em;border-radius:50%;background:#fff;border:3px solid var(--river-400);color:var(--river-600);position:relative;z-index:1}
+.qtl span{font-weight:600;line-height:1.2}
+.qtl li.usa i{background:var(--cu-violet);border-color:var(--cu-violet);color:#fff;transform:scale(1.15)}
+.qtl li.usa span{color:var(--cu-violet)}
+.qtl em{font:700 .75em/1 "JetBrains Mono",monospace;font-style:normal;color:#fff;background:var(--cu-violet);padding:.3em .6em;border-radius:1em;letter-spacing:.05em}
+.vs{display:grid;grid-template-columns:1fr 1.15fr;gap:2em;margin-top:1.3em;align-items:stretch;min-height:9em}
 .usa-card{border-radius:24px;padding:1.4em;background:var(--cu-paper);display:flex;flex-direction:column;gap:.4em}
 .usa-card b{font:700 6em/0.9 var(--font-head);letter-spacing:-.06em;color:var(--cu-violet)}
 .usa-card span{font-size:.95em;color:var(--cu-muted)}
@@ -401,14 +409,24 @@ a.src::after{content:" ↗"}
 .lagoon .lag-hint{position:absolute;left:1.2em;bottom:1em;font:500 .6em/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--river-600);display:flex;gap:.6em;align-items:center}
 .lagoon .lag-hint::before{content:"";width:.7em;height:.7em;border-radius:50%;background:var(--cu-lime);box-shadow:0 0 0 0 rgb(205 251 124 / .8);animation:ping 2.4s ease-out infinite}
 @keyframes ping{70%,100%{box-shadow:0 0 0 1em rgb(205 251 124 / 0)}}
-.glint{position:absolute;width:3.2em;height:1.1em;border-radius:50%;border:2px solid rgb(255 255 255 / .9);left:50%;top:58%;transform:translate(-50%,-50%);animation:glint 3s ease-in-out infinite}
-@keyframes glint{0%,100%{opacity:.25;transform:translate(-50%,-50%) scale(.8)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
-.fish{position:absolute;left:50%;top:58%;width:10.5em;height:6.6em;margin:-3.3em 0 0 -5.25em;opacity:0;pointer-events:none;z-index:3;filter:drop-shadow(0 .4em .5em rgb(30 154 140 / .35))}
-.fish svg{width:100%;height:100%;overflow:visible}
-.drop{position:absolute;left:50%;top:58%;width:.45em;height:.45em;border-radius:50%;background:#fff;pointer-events:none;z-index:2;opacity:0;box-shadow:0 0 0 1px var(--river-300)}
-.ring{position:absolute;left:50%;top:58%;width:4em;height:1.4em;margin:-.7em 0 0 -2em;border-radius:50%;border:2px solid #fff;pointer-events:none;opacity:0}
-.spark{position:absolute;width:.7em;height:.7em;pointer-events:none;z-index:4;opacity:0;
-  background:linear-gradient(var(--cu-lime) 0 0) center/100% 2px no-repeat,linear-gradient(var(--cu-lime) 0 0) center/2px 100% no-repeat}
+.lagoon{background:linear-gradient(#f5fcfb 0%,#e2f6f2 31%,transparent 31.2%),radial-gradient(80% 60% at 50% 75%, var(--river-100), var(--river-200) 70%, var(--river-300))}
+.scene{position:absolute;inset:0;border-radius:30px;overflow:hidden;pointer-events:none}
+.lh{position:absolute;left:58%;top:4%;height:36%;aspect-ratio:1/2;z-index:2}
+.lh svg{width:100%;height:100%;display:block;overflow:visible}
+.lh-refl{top:40%;transform:scaleY(-1);transform-origin:50% 50%;opacity:.28;filter:blur(1.5px);z-index:1;
+  -webkit-mask-image:linear-gradient(to top,#000,transparent 70%);mask-image:linear-gradient(to top,#000,transparent 70%)}
+.lh .glass,.lh .lamp{transition:fill .4s}
+.lagoon.lit .lh .glass{fill:#fff6b0}.lagoon.lit .lh .lamp{fill:#fff}
+.dusk{position:absolute;inset:0;background:linear-gradient(#1b2350,#0e4d55);opacity:0;z-index:0}
+.beam{position:absolute;left:0;top:0;width:10px;height:10px;opacity:0;z-index:3;transform-origin:0 50%;
+  clip-path:polygon(0 46%,100% 0,100% 100%,0 54%);
+  background:linear-gradient(to right,rgb(255 248 200 / .95),rgb(255 248 200 / .35) 55%,rgb(255 248 200 / 0))}
+.halo{position:absolute;left:0;top:0;width:6em;height:6em;margin:-3em 0 0 -3em;border-radius:50%;opacity:0;z-index:4;
+  background:radial-gradient(circle,#fff 0 12%,rgb(255 240 160 / .9) 25%,rgb(255 230 120 / .35) 50%,rgb(255 230 120 / 0) 70%)}
+.twinkle{position:absolute;width:1em;height:1em;margin:-.5em 0 0 -.5em;pointer-events:none;z-index:5;opacity:0;
+  background:radial-gradient(circle,#fff 0 10%,transparent 30%),linear-gradient(#fff 0 0) center/100% 2px no-repeat,linear-gradient(#fff 0 0) center/2px 100% no-repeat;
+  filter:drop-shadow(0 0 3px rgb(255 240 160 / .9))}
+.twinkle.lime{background:linear-gradient(var(--cu-lime) 0 0) center/100% 2px no-repeat,linear-gradient(var(--cu-lime) 0 0) center/2px 100% no-repeat;filter:drop-shadow(0 0 3px rgb(205 251 124 / .9))}
 
 /* подписи разделов на общем плане */
 .maplbl{position:absolute;pointer-events:none;display:flex;flex-direction:column;align-items:flex-start;gap:20px;opacity:0;transition:opacity .7s var(--ease);
@@ -496,12 +514,48 @@ a.src::after{content:" ↗"}
   .fr-in,.fr.cur .fr-in{box-shadow:none}
   .far .fr-in{opacity:1}
   .bar{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(255 255 255 / .97)}
-  .fish{filter:none}
+  .lh-refl{filter:none}
 }
 @media (prefers-reduced-motion:reduce){
-  .flow,.pin.we,.glint,.lag-hint::before{animation:none}
+  .flow,.pin.we,.lag-hint::before{animation:none}
   .prog i{transition:none}
 }
+
+/* Личный кейс: матрица сдвиги × стадии */
+.case-head{display:flex;justify-content:space-between;align-items:end;gap:2em}
+.case-legend{display:flex;flex-direction:column;align-items:flex-start;gap:.25em;font-size:1.05em;color:var(--cu-muted);padding-bottom:.4em}
+.case-legend span{display:flex;align-items:center;gap:.5em;white-space:nowrap}
+.case-legend b{font:700 1.1em var(--font-head);color:var(--cu-ink)}
+.case-legend i,.cell span{display:inline-block;width:1.1em;height:1.1em;transform:rotate(45deg);border-radius:3px}
+.m16{border:3px solid var(--river-400);background:#fff}
+.m26{background:var(--cu-violet)}
+.case{width:100%;margin-top:1.1em;font-size:1.25em;line-height:1.2;border-collapse:collapse;table-layout:fixed}
+.case th,.case td{border-bottom:1px solid var(--cu-line);padding:.45em .45em;vertical-align:middle}
+.case thead th{border-bottom:2px solid var(--cu-ink);vertical-align:bottom;text-align:center}
+.case .corner{width:23%;text-align:left;font:500 .55em/1.3 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--cu-muted)}
+.case .st i{display:block;font:500 .6em/1 var(--font-mono);font-style:normal;color:var(--cu-violet);margin-bottom:.4em}
+.case .st b{display:block;font:700 .66em/1.15 var(--font-head);letter-spacing:-.01em}
+.case .st span{display:block;font-size:.55em;line-height:1.2;color:var(--cu-muted)}
+.case .cmh{width:19%;text-align:left;font:700 .8em var(--font-head)}
+.case .sh{text-align:left;font-weight:400}
+.case .sh i{font:500 .6em var(--font-mono);font-style:normal;color:var(--cu-violet);margin-right:.6em}
+.case .sh b{font:700 .8em/1.15 var(--font-head);letter-spacing:-.01em}
+.case .sh em{display:inline-block;margin-left:.6em;padding:.15em .5em;border-radius:999px;background:var(--cu-lime);font:600 .5em/1.3 var(--font-text);font-style:normal;vertical-align:middle}
+.case tr.ours{background:var(--river-50)}
+.case tbody tr:nth-child(6) th,.case tbody tr:nth-child(6) td{border-top:2px dashed var(--river-300)}
+.cell{text-align:center;border-left:1px solid var(--cu-line)}
+.cell span{border:2px dashed var(--cu-line-strong);opacity:.6}
+.cm{border-left:1px solid var(--cu-line)}
+.cell.on span{border:0;background:var(--cu-violet);opacity:1}
+.cell{position:relative}
+.cell span{position:relative;z-index:1}
+.rv{position:absolute;top:50%;left:calc(50% - .9em);width:calc((var(--n) - 1) * 100% + 1.8em);height:1.5em;transform:translateY(-50%);
+  border-radius:.75em;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 40' preserveAspectRatio='none'%3E%3Cpath d='M0 11 Q30 3 60 11 T120 11 V29 Q90 37 60 29 T0 29 Z' fill='%232f6be6' fill-opacity='.3'/%3E%3C/svg%3E") left center/2.6em 100% repeat-x;pointer-events:none}
+
+.case .cm{font-size:.62em;line-height:1.3;color:var(--cu-ink);padding-left:.8em}
+.case-legend .arrow{color:var(--river-400);font-weight:700;padding-left:.6em}
+.case-legend .key{margin-top:.3em;font-size:.85em}
+
 </style>
 </head>
 <body>
@@ -534,7 +588,7 @@ a.src::after{content:" ↗"}
   <div class="fr-in"><div class="t-title">
     <span class="eyebrow">Кафедра Гудлайн · 10 лет · Река времени</span>
     <h1 class="display">Трансформация образования: <span class="mark">где мы находимся</span></h1>
-    <div class="speaker"><b>Марина Семехина</b><span>к.т.н. · руководитель проекта «Кафедра Гудлайн» · программный директор АНО «Городской университет 2.0»</span></div>
+    <div class="speaker"><b>Марина Семехина</b><span>к.т.н. · руководитель проекта «Кафедра Гудлайн»<br>программный директор АНО «Городской университет 2.0»</span></div>
     <aside class="qr-card"><div class="qr" data-qr></div><p>Откройте маршрут на телефоне и пройдите его сами</p></aside>
     <div class="hint coord">→ пробел — дальше · колесо — масштаб · O — вся карта</div>
   </div></div>
@@ -748,10 +802,30 @@ a.src::after{content:" ↗"}
   <div class="fr-in">
     <span class="eyebrow">Где мы на реке</span>
     <h2 class="h2">А на какой стадии находимся мы?</h2>
+      <ol class="qtl" aria-label="Семь стадий изменений"><li><i>1</i><span>Запрос на изменения</span></li><li><i>2</i><span>Отрицание</span></li><li><i>3</i><span>Починить существующее</span></li><li class="usa"><i>4</i><span>Новые модели на периферии</span><em>США</em></li><li><i>5</i><span>Распространение</span></li><li><i>6</i><span>Стандартизация</span></li><li><i>7</i><span>Масштабирование</span></li></ol>
     <div class="vs">
       <div class="usa-card"><span class="coord">США, по оценке авторов</span><b>4</b><span>новые модели уже появились на периферии, но ещё не стали мейнстримом</span></div>
       <div class="we-card"><span class="coord" style="color:var(--river-600)">Россия · Кузбасс · Кемерово</span><b>?</b><span>Наш ответ — тема сегодняшней работы</span></div>
     </div>
+  </div>
+</section>
+
+<!-- ЛИЧНЫЙ КЕЙС -->
+<section class="fr" id="f-case" data-nokm data-x="1100" data-y="6650" data-w="2500" data-h="1180" aria-label="Опыт образовательной команды">
+  <div class="fr-in">
+    <div class="case-head">
+      <div><span class="eyebrow">Личный кейс</span><h2 class="h2">Опыт образовательной команды</h2></div>
+      <div class="case-legend">
+        <span><b>2016</b>Кафедра Goodline</span>
+        <span class="arrow">↓</span>
+        <span><b>2026</b>АНО «Городской университет 2.0»</span>
+        <span class="key"><i class="m26"></i>пройденные стадии</span>
+      </div>
+    </div>
+    <table class="case">
+      <thead><tr><th class="corner">сдвиг \ стадия</th><th class="st"><i>1</i><b>Запрос</b><span>на изменения</span></th><th class="st"><i>2</i><b>Отрицание</b><span></span></th><th class="st"><i>3</i><b>Починить</b><span>существующее</span></th><th class="st"><i>4</i><b>Новые модели</b><span>на периферии</span></th><th class="st"><i>5</i><b>Распростра&shy;нение</b><span></span></th><th class="st"><i>6</i><b>Стандарти&shy;зация</b><span></span></th><th class="st"><i>7</i><b>Масштаби&shy;рование</b><span></span></th><th class="cmh">Комментарии</th></tr></thead>
+      <tbody><tr class=""><th class="sh"><i>01</i><b>От teaching к learning</b></th><td class="cell on"><i class="rv" style="--n:3" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">не просто поменять свои шаблоны поведения</td></tr><tr class=""><th class="sh"><i>02</i><b>От времени к результату</b></th><td class="cell on"><i class="rv" style="--n:3" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">наше синхронное обучение даёт ценность групповой динамики, но противоречит этому сдвигу</td></tr><tr class=""><th class="sh"><i>03</i><b>От «на всякий случай» к «точно в срок»</b></th><td class="cell on"><i class="rv" style="--n:2" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">нет реалистичного баланса ценностей и бизнес-модели</td></tr><tr class=""><th class="sh"><i>04</i><b>От диплома к портфелю</b></th><td class="cell on"><i class="rv" style="--n:2" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">не готова почва для выделения сертификационных центров</td></tr><tr class=""><th class="sh"><i>05</i><b>Разделение цепочки</b></th><td class="cell on"><i class="rv" style="--n:4" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">наиболее осуществимо</td></tr><tr class="ours"><th class="sh"><i>06</i><b>ИИ в образовании</b><em>наш сдвиг</em></th><td class="cell on"><i class="rv" style="--n:4" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">для управления, обучения, маркетинга</td></tr><tr class="ours"><th class="sh"><i>07</i><b>Lifelong learning</b><em>наш сдвиг</em></th><td class="cell on"><i class="rv" style="--n:5" aria-hidden="true"></i><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell on"><span></span></td><td class="cell"><span></span></td><td class="cell"><span></span></td><td class="cm">самый очевидный сдвиг</td></tr></tbody>
+    </table>
   </div>
 </section>
 
@@ -766,24 +840,45 @@ a.src::after{content:" ↗"}
     </div>
     <div class="lagoon" role="button" tabindex="0" aria-label="Коснитесь воды">
       <div class="waves"><svg viewBox="0 0 400 300" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 74 C40 58 80 62 120 70 S200 56 250 64 S340 72 400 60 V98 H0Z" fill="#9fdcd2" opacity=".55"/>
+          <path d="M0 86 C50 76 100 80 150 86 S240 78 300 84 S370 88 400 82 V100 H0Z" fill="#7fcfc3" opacity=".7"/>
+          <path d="M0 99 H400" stroke="#fff" stroke-width="2" opacity=".6"/>
         <g fill="none" stroke="#fff" stroke-linecap="round" opacity=".7">
-          <path d="M20 70 q30 -12 60 0 t60 0 t60 0" stroke-width="3"/><path d="M200 120 q30 -12 60 0 t60 0 t60 0" stroke-width="3" opacity=".7"/>
-          <path d="M40 220 q30 -12 60 0 t60 0" stroke-width="3" opacity=".6"/><path d="M230 250 q25 -10 50 0 t50 0" stroke-width="2.5" opacity=".5"/></g></svg></div>
-      <i class="glint"></i>
-      <div class="fish" aria-hidden="true"><svg viewBox="-110 -70 220 140">
-        <defs>
-          <linearGradient id="gold" x1="0" y1="-1" x2="0" y2="1"><stop offset="0" stop-color="#ffe9a3"/><stop offset=".45" stop-color="#ffc23d"/><stop offset="1" stop-color="#e8760f"/></linearGradient>
-          <linearGradient id="fin" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffb02e"/><stop offset="1" stop-color="#ffd977" stop-opacity=".85"/></linearGradient>
-        </defs>
-        <path d="M-55 0 C-80 -30 -105 -48 -104 -20 C-102 -6 -96 -2 -92 0 C-96 2 -102 6 -104 20 C-105 48 -80 30 -55 0Z" fill="url(#fin)"/>
-        <path d="M-8 -34 C2 -62 30 -60 38 -36Z" fill="url(#fin)"/>
-        <path d="M-60 0 C-40 -42 30 -46 70 -16 C82 -7 86 0 86 2 C86 4 82 10 70 18 C30 46 -40 42 -60 0Z" fill="url(#gold)"/>
-        <g fill="none" stroke="#e8760f" stroke-opacity=".35" stroke-width="2"><path d="M-20 -18 q6 8 0 16 M-2 -22 q7 10 0 20 M16 -20 q7 9 0 18 M-20 4 q6 8 0 16 M-2 6 q7 9 0 18 M16 6 q6 8 0 15"/></g>
-        <path d="M44 -26 C36 -8 36 10 44 26" fill="none" stroke="#e8760f" stroke-opacity=".55" stroke-width="2.5"/>
-        <path d="M10 14 C18 30 4 40 -6 30Z" fill="url(#fin)" opacity=".9"/>
-        <circle cx="62" cy="-6" r="6.5" fill="#050517"/><circle cx="64" cy="-8" r="2.2" fill="#fff"/>
-        <path d="M30 -40 l6 -16 l6 10 l6 -14 l6 14 l6 -10 l4 18 z" fill="#cdfb7c" stroke="#9fd43f" stroke-width="2" stroke-linejoin="round"/>
-      </svg></div>
+          <path d="M20 160 q30 -12 60 0 t60 0 t60 0" stroke-width="3"/><path d="M200 200 q30 -12 60 0 t60 0 t60 0" stroke-width="3" opacity=".7"/>
+          <path d="M40 245 q30 -12 60 0 t60 0" stroke-width="3" opacity=".6"/><path d="M250 275 q25 -10 50 0 t50 0" stroke-width="2.5" opacity=".5"/></g></svg></div>
+      <div class="scene">
+        <i class="dusk"></i>
+        <i class="beam"></i>
+        <div class="lh lh-refl" aria-hidden="true"><svg viewBox="0 0 100 200" aria-hidden="true">
+          <path d="M8 196 C14 184 28 180 50 181 C72 180 86 184 92 196Z" fill="#3d7f88"/>
+          <path d="M18 190 C26 184 40 183 50 184 C64 183 76 186 82 192" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+          <path d="M36 182 L41 70 H59 L64 182Z" fill="#fff"/>
+          <path d="M38.6 128 L39.6 106 H60.4 L61.4 128Z M37.2 162 L37.9 146 H62.1 L62.8 162Z M40.3 92 L40.7 80 H59.3 L59.7 92Z" fill="#731dd8"/>
+          <path d="M36 182 L41 70 H50 V182Z" fill="#050517" opacity=".07"/>
+          <rect x="34" y="64" width="32" height="6" rx="1.5" fill="#050517"/>
+          <path d="M35 64 V60 M65 64 V60 M35 60 H65" stroke="#050517" stroke-width="1.6" fill="none"/>
+          <rect class="glass" x="40" y="42" width="20" height="22" rx="2" fill="#f7f3c4" stroke="#050517" stroke-width="1.8"/>
+          <path d="M50 42 V64" stroke="#050517" stroke-width="1.4"/>
+          <circle class="lamp" cx="50" cy="53" r="4.5" fill="#ffd34d"/>
+          <path d="M37 42 Q50 26 63 42Z" fill="#731dd8"/>
+          <path d="M50 29 V22" stroke="#050517" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="21" r="2" fill="#cdfb7c" stroke="#050517" stroke-width="1"/>
+        </svg></div>
+        <div class="lh" aria-hidden="true"><svg viewBox="0 0 100 200" aria-hidden="true">
+          <path d="M8 196 C14 184 28 180 50 181 C72 180 86 184 92 196Z" fill="#3d7f88"/>
+          <path d="M18 190 C26 184 40 183 50 184 C64 183 76 186 82 192" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+          <path d="M36 182 L41 70 H59 L64 182Z" fill="#fff"/>
+          <path d="M38.6 128 L39.6 106 H60.4 L61.4 128Z M37.2 162 L37.9 146 H62.1 L62.8 162Z M40.3 92 L40.7 80 H59.3 L59.7 92Z" fill="#731dd8"/>
+          <path d="M36 182 L41 70 H50 V182Z" fill="#050517" opacity=".07"/>
+          <rect x="34" y="64" width="32" height="6" rx="1.5" fill="#050517"/>
+          <path d="M35 64 V60 M65 64 V60 M35 60 H65" stroke="#050517" stroke-width="1.6" fill="none"/>
+          <rect class="glass" x="40" y="42" width="20" height="22" rx="2" fill="#f7f3c4" stroke="#050517" stroke-width="1.8"/>
+          <path d="M50 42 V64" stroke="#050517" stroke-width="1.4"/>
+          <circle class="lamp" cx="50" cy="53" r="4.5" fill="#ffd34d"/>
+          <path d="M37 42 Q50 26 63 42Z" fill="#731dd8"/>
+          <path d="M50 29 V22" stroke="#050517" stroke-width="2" stroke-linecap="round"/><circle cx="50" cy="21" r="2" fill="#cdfb7c" stroke="#050517" stroke-width="1"/>
+        </svg></div>
+        <i class="halo"></i>
+      </div>
       <span class="lag-hint">коснитесь воды</span>
     </div>
   </div></div>
@@ -3154,6 +3249,7 @@ const STEPS = [
   { id: "sem-stadiy", sec: 6, frame: "f-strip",   title: "Семь стадий · как изменения входят в жизнь", rect: [8200, 6880, 5600, 2050] },
   { id: "urok",       sec: 6, frame: "f-lesson",  title: "Урок истории" },
   { id: "my",         sec: 6, frame: "f-question",title: "А мы?" },
+  { id: "opyt",       sec: 6, frame: "f-case",    title: "Опыт образовательной команды" },
   { id: "ustie",      sec: 7, frame: "f-final",   title: "Устье" },
 ];
 
@@ -3573,7 +3669,7 @@ $("#sheetHead").addEventListener("click", () => {
 /* =====================================================================
    QR-КОД — ссылка на эту же страницу (работает на любом хостинге)
    ===================================================================== */
-function pageURL() { return location.href.split("#")[0]; }
+function pageURL() { return "https://edtransformation-river.netlify.app/"; }
 function renderQR() {
   if (typeof qrcode !== "function") return;
   const q = qrcode(0, "M"); q.addData(pageURL()); q.make();
@@ -3590,54 +3686,55 @@ $("#bQR").onclick = openQR; $("#qrClose").onclick = closeQR;
 $("#qrModal").addEventListener("click", e => { if (e.target.id === "qrModal") closeQR(); });
 
 /* =====================================================================
-   ПАСХАЛКА: золотая рыбка
+   ПАСХАЛКА: маяк на дальнем берегу
    ===================================================================== */
-let fishBusy = false;
-function playFish(lag) {
-  if (fishBusy) return; fishBusy = true;
-  const fish = lag.querySelector(".fish"), glint = lag.querySelector(".glint");
+let lightBusy = false;
+function playLight(lag) {
+  if (lightBusy) return; lightBusy = true;
+  const scene = lag.querySelector(".scene"), beam = scene.querySelector(".beam"), halo = scene.querySelector(".halo"),
+        dusk = scene.querySelector(".dusk"), lamp = scene.querySelector(".lh:not(.lh-refl) .lamp");
   const W = lag.clientWidth, H = lag.clientHeight;
-  const jump = Math.min(H * 0.95, W * 0.6), span = W * 0.3;
-  glint.style.visibility = "hidden";
-  const dur = reduceMotion ? 1 : 2300;
-  fish.animate([
-    { opacity: 0, transform: `translate(${-span}px, 30px) rotate(-55deg) scale(.55)` },
-    { opacity: 1, transform: `translate(${-span * .7}px, -10px) rotate(-48deg) scale(.85)`, offset: .1 },
-    { opacity: 1, transform: `translate(${-span * .3}px, ${-jump * .85}px) rotate(-22deg) scale(1)`, offset: .36 },
-    { opacity: 1, transform: `translate(0px, ${-jump}px) rotate(0deg) scale(1.05)`, offset: .5 },
-    { opacity: 1, transform: `translate(${span * .35}px, ${-jump * .8}px) rotate(28deg) scale(1)`, offset: .66 },
-    { opacity: 1, transform: `translate(${span * .75}px, -6px) rotate(58deg) scale(.85)`, offset: .9 },
-    { opacity: 0, transform: `translate(${span}px, 34px) rotate(64deg) scale(.6)` }
-  ], { duration: dur, easing: "cubic-bezier(.33,0,.67,1)", fill: "forwards" });
-  const splash = (x, delay) => setTimeout(() => {
-    for (let i = 0; i < 3; i++) {
-      const r = document.createElement("i"); r.className = "ring"; lag.appendChild(r);
-      r.style.marginLeft = `calc(-2em + ${x}px)`;
-      r.animate([{ opacity: .95, transform: "scale(.3)" }, { opacity: 0, transform: "scale(3.2)" }],
-        { duration: 1500, delay: i * 220, easing: "ease-out" }).onfinish = () => r.remove();
-    }
-    for (let i = 0; i < 16; i++) {
-      const d = document.createElement("i"); d.className = "drop"; lag.appendChild(d);
-      const vx = (Math.random() - .5) * 220, vy = -(80 + Math.random() * 170), kf = [];
-      for (let k = 0; k <= 8; k++) { const t = k / 8; kf.push({ opacity: t < .85 ? 1 : 0, transform: `translate(${x + vx * t}px, ${vy * t + 260 * t * t}px) scale(${1 - t * .4})` }); }
-      d.animate(kf, { duration: 750 + Math.random() * 300, easing: "linear" }).onfinish = () => d.remove();
-    }
-  }, reduceMotion ? 0 : delay);
-  splash(-span * .7, 180); splash(span * .75, dur * .88);
-  // искры в верхней точке
+  const lr = lag.getBoundingClientRect(), k = lr.width / W || 1, pr = lamp.getBoundingClientRect();
+  const x = (pr.left + pr.width / 2 - lr.left) / k, y = (pr.top + pr.height / 2 - lr.top) / k;
+  const dur = reduceMotion ? 1 : 2800;
+  Object.assign(beam.style, { left: x + "px", top: (y - H * .2) + "px", width: Math.max(x, W - x) * 1.25 + "px", height: H * .4 + "px" });
+  Object.assign(halo.style, { left: x + "px", top: y + "px" });
+  lag.classList.add("lit");
+  dusk.animate([{ opacity: 0 }, { opacity: .38, offset: .15 }, { opacity: .38, offset: .85 }, { opacity: 0 }], { duration: dur + 900, easing: "ease-in-out" });
+  halo.animate([
+    { opacity: 0, transform: "scale(.2)" }, { opacity: 1, transform: "scale(1)", offset: .12 },
+    { opacity: 1, transform: "scale(1)", offset: .4 }, { opacity: 1, transform: "scale(2.6)", offset: .5 },
+    { opacity: 1, transform: "scale(1)", offset: .6 }, { opacity: 1, transform: "scale(1)", offset: .9 }, { opacity: 0, transform: "scale(.3)" }
+  ], { duration: dur + 300, easing: "ease-in-out" });
+  // луч: смотрит влево → разворачивается на нас (вспышка) → уходит вправо
+  beam.animate([
+    { opacity: 0, transform: "scale(-1,.6)" },
+    { opacity: 1, transform: "scale(-1,1)", offset: .12 },
+    { opacity: 1, transform: "scale(-.06,1.7)", offset: .47 },
+    { opacity: 1, transform: "scale(.06,1.7)", offset: .53 },
+    { opacity: 1, transform: "scale(1,1)", offset: .88 },
+    { opacity: 0, transform: "scale(1,.8)" }
+  ], { duration: dur, easing: "linear" });
+  // блёстки слева направо
   setTimeout(() => {
-    for (let i = 0; i < 7; i++) {
-      const s = document.createElement("i"); s.className = "spark"; lag.appendChild(s);
-      const a = Math.random() * Math.PI * 2, rr = 50 + Math.random() * 80;
-      s.style.left = `calc(50% + ${Math.cos(a) * 30}px)`; s.style.top = `calc(58% - ${jump}px + ${Math.sin(a) * 30}px)`;
-      s.animate([{ opacity: 0, transform: "scale(.2) rotate(0deg)" }, { opacity: 1, transform: `translate(${Math.cos(a) * rr * .5}px,${Math.sin(a) * rr * .5}px) scale(1.3) rotate(45deg)`, offset: .4 },
-        { opacity: 0, transform: `translate(${Math.cos(a) * rr}px,${Math.sin(a) * rr}px) scale(.4) rotate(90deg)` }], { duration: 1100, easing: "ease-out" }).onfinish = () => s.remove();
+    const n = 34, sweep = 1100;
+    for (let i = 0; i < n; i++) {
+      const t = i / (n - 1), px = 3 + t * 94 + (Math.random() - .5) * 6, py = 8 + Math.random() * 84;
+      const s = document.createElement("i"); s.className = "twinkle" + (Math.random() < .3 ? " lime" : ""); lag.appendChild(s);
+      s.style.left = px + "%"; s.style.top = py + "%";
+      const sc = .6 + Math.random() * .9, rot = Math.random() * 90;
+      s.animate([
+        { opacity: 0, transform: `scale(.1) rotate(${rot}deg)` },
+        { opacity: 1, transform: `translateX(8px) scale(${sc}) rotate(${rot + 45}deg)`, offset: .35 },
+        { opacity: 0, transform: `translateX(22px) scale(.2) rotate(${rot + 120}deg)` }
+      ], { duration: 900 + Math.random() * 500, delay: t * sweep + Math.random() * 120, easing: "ease-out", fill: "backwards" }).onfinish = () => s.remove();
     }
-  }, reduceMotion ? 0 : dur * .45);
-  setTimeout(() => { fishBusy = false; glint.style.visibility = ""; }, reduceMotion ? 50 : dur + 400);
+  }, reduceMotion ? 0 : dur * .82);
+  setTimeout(() => lag.classList.remove("lit"), reduceMotion ? 50 : dur + 200);
+  setTimeout(() => { lightBusy = false; }, reduceMotion ? 50 : dur + 1700);
 }
-document.addEventListener("click", e => { const l = e.target.closest(".lagoon"); if (l) playFish(l); });
-document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("lagoon")) { e.stopPropagation(); playFish(e.target); } }, true);
+document.addEventListener("click", e => { const l = e.target.closest(".lagoon"); if (l) playLight(l); });
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.classList?.contains("lagoon")) { e.stopPropagation(); playLight(e.target); } }, true);
 
 /* =====================================================================
    СТАРТ
