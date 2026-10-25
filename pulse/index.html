@@ -841,7 +841,7 @@ async function onSend() {
       showDone(res);
     } else {
       st.classList.add("err");
-      st.textContent = MESSAGES[res.code] || MESSAGES.default;
+      st.textContent = (MESSAGES[res.code] || MESSAGES.default) + (MESSAGES[res.code] ? "" : ` (код: ${res.code || "нет ответа"})`);
       if (res.code === "closed") { showClosed(); }
       if (res.code === "limit_device") { store.set("pulse_sent", JSON.stringify([Date.now(), Date.now()])); }
     }
