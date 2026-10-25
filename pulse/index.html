@@ -54,7 +54,12 @@ a{color:var(--cu-violet)}
 .brand{display:flex;flex-direction:column;line-height:1.1;flex:none;text-decoration:none;color:var(--cu-ink)}
 .brand b{font:700 15px/1.1 var(--font-head);letter-spacing:-.02em}
 .brand span{font:500 10px/1.3 var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--cu-muted)}
-.nav{flex:1;min-width:0;display:flex;gap:4px;justify-content:center}
+.nav{flex:1;min-width:0;display:flex;gap:4px;justify-content:center;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 24px),transparent)}
+.nav::-webkit-scrollbar{display:none}
+.nav a.ext span{color:var(--cu-violet);font-weight:700}
+.nav a b{font:inherit}
+.nav a .sm{display:none}
+.nav a:focus-visible{outline:3px solid var(--cu-lime);outline-offset:-3px}
 .nav a{display:inline-flex;align-items:center;gap:7px;height:36px;padding:0 13px;border-radius:999px;border:1px solid transparent;text-decoration:none;
   font:600 14px/1 var(--font-text);color:var(--cu-muted);white-space:nowrap;transition:background-color .25s,color .25s,border-color .25s}
 .nav a i{font:500 11px/1 var(--font-mono);font-style:normal;letter-spacing:.04em;color:var(--cu-violet);opacity:.75}
@@ -294,8 +299,13 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
 @media (max-width:700px){
   :root{--bar:54px}
   .brand span{display:none}
-  .nav{justify-content:flex-end}
-  .nav a{height:34px;padding:0 11px;font-size:13px}
+  .brand{display:none}
+  .nav{justify-content:flex-start}
+  .nav{gap:0;-webkit-mask-image:none;mask-image:none}
+  .nav a{height:34px;padding:0 8px;font-size:13px;gap:3px}
+  .nav a .lg{display:none}
+  .nav a .sm{display:inline}
+  .bar{padding:0 8px;gap:6px}
   .nav a i{display:none}
   .tools .hide-m{display:none}
   .hero{padding:34px 0 10px}
@@ -339,6 +349,9 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
   .mx tfoot td{border:0;padding:0;height:34px;display:grid;place-items:center;font-size:14px}
   .mx tfoot td.n{font-size:12px}
 }
+@media (max-width:400px){
+  .nav a{padding:0 6px;font-size:12px}
+}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *{transition:none!important}
@@ -356,9 +369,10 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
   <nav class="nav" aria-label="Разделы">
     <a href="#form" data-sec="form"><i>01</i>Анкета</a>
     <a href="#results" data-sec="results"><i>02</i>Результаты</a>
+    <a href="/" target="_blank" rel="noopener" class="ext"><i>03</i><b class="lg">Концепция опроса</b><b class="sm">Концепция</b><span aria-hidden="true">↗</span></a>
+    <a href="https://cityuniversity.ru/konf_301026" target="_blank" rel="noopener" class="ext"><i>04</i><b class="lg">Конференция «Река времени»</b><b class="sm">Конференция</b><span aria-hidden="true">↗</span></a>
   </nav>
   <div class="tools">
-    <a class="ib hide-m" href="/" title="Вернуться к докладу «Река времени»">К реке <span aria-hidden="true">↗</span></a>
     <button class="ib hide-m" id="bQR" type="button" title="QR-код этой страницы" aria-label="QR-код этой страницы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2.5v2.5M20.5 14.5v6h-3M14.5 20.5h.01" stroke-linecap="round"/></svg></button>
   </div>
 </header>
