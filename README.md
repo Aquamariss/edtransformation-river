@@ -17,3 +17,4 @@
 - `/speakers/zaklyuchaeva/` — Мария Заключаева, Friends School
 - `/speakers/mosina/` — Марина Мосина, Школа креативных индустрий РГИСИ (Кемерово)
 - `/speakers/bayandina/` — Мария Баяндина, холдинговая компания «СДС»
+- `/speakers/bayandina-original/` — та же презентация с исходными формулировками автора
