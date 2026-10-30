@@ -150,7 +150,8 @@ async function generate(stats) {
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
       model: env("PULSE_MODEL") || MODEL_DEFAULT,
-      max_tokens: 2000,
+      max_tokens: 6000,                 // потолок на размышления и текст вместе
+      output_config: { effort: "low" }, // текст по готовым цифрам — долго думать не нужно, а функция живёт ~30 с
       system: SYSTEM,
       messages: [{
         role: "user",
@@ -166,7 +167,7 @@ async function generate(stats) {
   }
   const text = (j.content || []).filter(c => c.type === "text").map(c => c.text).join("").replace(/^```(?:html)?\s*|\s*```$/g, "");
   const html = sanitize(text);
-  return html.length > 200 ? { html } : { error: `empty ${j.stop_reason} ${text.length} ${JSON.stringify((j.content || []).map(c => c.type))} ${text.slice(0, 80)}` };
+  return html.length > 200 ? { html } : { error: `empty ${j.stop_reason}` };
 }
 
 function sameOrigin(req) {
