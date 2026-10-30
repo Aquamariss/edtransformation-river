@@ -1171,11 +1171,11 @@ const INTERP_SNAPSHOT = {
 <li>По сдвигу «точно в срок» мнения разошлись сильнее всего: ответы стоят на всех стадиях, от отрицания до масштабирования.</li>
 <li>Один участник добавил свой сдвиг, <b>«Запрос от взрослых»</b>, и сразу поставил его на стадию масштабирования.</li></ul></section>
 <section><h3>Вузы, ДПО и корпоративное обучение</h3><ul>
-<li><b>Вузы</b> (5 ответов): отрицания нет совсем. Ответы делятся на две группы: «починить существующее» и «стандартизация». Педагогические сдвиги (teaching→learning, время→результат, точно в срок) в основном на стадии «починить».</li>
+<li><b>Вузы</b> (5 ответов): отрицания нет совсем. Ответы делятся на две группы: «починить существующее» и «стандартизация». Педагогические сдвиги (teaching→learning, время→результат, точно в срок) чаще всего отмечены на стадии «починить».</li>
 <li><b>ДПО</b> (8 ответов): самый широкий разброс. Здесь и всё отрицание, и большая часть ответов «масштабирование».</li>
 <li><b>Корпоративное</b> (2 ответа): ответы ровные, на стадиях от «новых моделей» до «стандартизации», без крайностей.</li>
-<li><b>Сходятся</b> в двух сдвигах: «от диплома к портфелю» все видят на стадии новых моделей, «разделение цепочки» — на стадии распространения.</li>
-<li><b>Расходятся</b> в трёх: в teaching→learning вузы ниже, чем ДПО и корпоративный сектор; в lifelong learning вузы на стадии новых моделей, остальные на стадии распространения; по ИИ вузы и корпоративный сектор видят его ближе к стандартизации, а в ДПО оценки разбросаны по всей шкале.</li></ul></section>
+<li><b>Сходятся</b> в трёх сдвигах: teaching→learning по средней стадии почти одинаков у всех; «от диплома к портфелю» все видят на стадии новых моделей, «разделение цепочки» — на стадии распространения.</li>
+<li><b>Расходятся</b> в двух: в lifelong learning вузы на стадии новых моделей, остальные на стадии распространения; по ИИ вузы и корпоративный сектор видят его ближе к стандартизации, а в ДПО оценки разбросаны по всей шкале.</li></ul></section>
 <p class="interp-foot">Ответов немного, участники могли отметить несколько типов образования, а ДПО составляет большую часть выборки. Это пульс нашего зала, а не срез отрасли.</p>`
 };
 
@@ -1340,41 +1340,81 @@ function buildInterpretation(stats) {
   return out.join("\n");
 }
 
-function renderInterp(html, n, generated) {
-  interp.n = n; interp.generated = generated;
+const INTERP_API = "/pulse/interp";
+const KIND = { manual: "написано вручную", ai: "подготовлено ИИ по данным опроса", rules: "собрано автоматически" };
+
+function renderInterp(html, n, kind) {
+  interp.n = n; interp.generated = kind !== "manual";
   $("#interpBody").innerHTML = html;
   $("#interpN").textContent = n;
   $("#interpLbl").textContent = plural(n, "ответ", "ответа", "ответов");
-  $("#interpKind").textContent = generated ? "собрано автоматически" : "написано вручную";
+  $("#interpKind").textContent = KIND[kind];
 }
 
 /* подсказка, если ответов стало больше, чем в показанной интерпретации */
 function interpHint() {
-  if (!view.stats) return;
+  if (!view.stats || $("#interpBtn").classList.contains("busy")) return;
   const n = view.stats.rows.length;
-  if (!interp.generated && n !== INTERP_SNAPSHOT.n && store.get("pulse_interp_n") === String(n)) {
-    renderInterp(buildInterpretation(view.stats), n, true);   // этот зритель уже обновлял на таком числе ответов
-  }
   $("#interpMsg").textContent = n !== interp.n
     ? `С момента интерпретации ответов стало ${n}. Нажмите «Обновить интерпретацию».`
     : "";
+}
+
+/* общая (для всех зрителей) интерпретация, которую уже написал ИИ */
+async function loadSharedInterp() {
+  try {
+    const j = await fetch(INTERP_API, { cache: "no-store" }).then(r => r.json());
+    if (j.ok && j.interp && j.interp.html && j.interp.n !== INTERP_SNAPSHOT.n) {
+      renderInterp(j.interp.html, j.interp.n, "ai");
+      interpHint();
+    }
+  } catch {}
+}
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+async function requestInterp() {
+  for (let attempt = 0; attempt < 8; attempt++) {
+    let r, j;
+    try {
+      r = await fetch(INTERP_API, { method: "POST", headers: { "content-type": "application/json" }, body: "{}" });
+      j = await r.json();
+    } catch { return null; }
+    if (j.ok) return j.interp;
+    if (j.code !== "busy") return null;
+    // кто-то уже запустил генерацию — ждём и смотрим, не появилась ли она
+    $("#interpMsg").textContent = "Интерпретацию уже готовят по запросу другого участника, ждём…";
+    await sleep(5000);
+  }
+  return null;
 }
 
 $("#interpBtn").addEventListener("click", async () => {
   const b = $("#interpBtn");
   b.classList.add("busy"); b.setAttribute("aria-busy", "true");
   $("#interpMsg").textContent = "Проверяем ответы…";
-  await loadStats();
-  b.classList.remove("busy"); b.removeAttribute("aria-busy");
-  if (!view.stats) { $("#interpMsg").textContent = "Не удалось загрузить ответы. Попробуйте ещё раз."; return; }
-  const n = view.stats.rows.length;
-  if (n === interp.n) { $("#interpMsg").textContent = `Новых ответов нет: интерпретация актуальна (${nAns(n)}).`; return; }
-  renderInterp(buildInterpretation(view.stats), n, true);
-  store.set("pulse_interp_n", String(n));
-  $("#interpMsg").textContent = `Интерпретация обновлена: ${nAns(n)}.`;
+  try {
+    await loadStats();
+    if (!view.stats) { $("#interpMsg").textContent = "Не удалось загрузить ответы. Попробуйте ещё раз."; return; }
+    const n = view.stats.rows.length;
+    if (n === interp.n) { $("#interpMsg").textContent = `Новых ответов нет: интерпретация актуальна (${nAns(n)}).`; return; }
+    $("#interpMsg").textContent = "Готовим интерпретацию, это займёт до полуминуты…";
+    const ai = await requestInterp();
+    if (ai && ai.html) {
+      renderInterp(ai.html, ai.n, "ai");
+      $("#interpMsg").textContent = `Интерпретация обновлена: ${nAns(ai.n)}.`;
+    } else {
+      // запасной путь: ИИ недоступен — собираем текст по правилам из тех же данных
+      renderInterp(buildInterpretation(view.stats), n, "rules");
+      $("#interpMsg").textContent = `Интерпретация обновлена: ${nAns(n)}.`;
+    }
+  } finally {
+    b.classList.remove("busy"); b.removeAttribute("aria-busy");
+  }
 });
 
-renderInterp(INTERP_SNAPSHOT.html, INTERP_SNAPSHOT.n, false);
+renderInterp(INTERP_SNAPSHOT.html, INTERP_SNAPSHOT.n, "manual");
+loadSharedInterp();
 
 /* =====================================================================
    СТАРТ
