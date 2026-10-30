@@ -159,11 +159,11 @@ async function generate(stats) {
   const j = await res.json().catch(() => null);
   if (!res.ok || !j) {
     console.error("anthropic error", res.status, j?.error?.type, j?.error?.message);
-    return null;
+    return { error: `${res.status} ${j?.error?.type || ""}`.trim() };
   }
   const text = (j.content || []).filter(c => c.type === "text").map(c => c.text).join("").replace(/^```(?:html)?\s*|\s*```$/g, "");
   const html = sanitize(text);
-  return html.length > 200 ? html : null;
+  return html.length > 200 ? { html } : { error: "empty" };
 }
 
 function sameOrigin(req) {
@@ -192,11 +192,12 @@ export default async (req) => {
   if (lock && now - lock.at < (lock.done ? COOLDOWN_MS : LOCK_MS)) return json({ ok: false, code: "busy", interp: cached }, 429);
   await store.setJSON("lock", { at: now, done: false });
 
-  let html = null;
-  try { html = await generate(stats); }
-  catch (e) { console.error("generate failed", e?.name || e); }
+  let r;
+  try { r = await generate(stats); }
+  catch (e) { console.error("generate failed", e?.name || e); r = { error: e?.name || "exception" }; }
   await store.setJSON("lock", { at: Date.now(), done: true });
-  if (!html) return json({ ok: false, code: "llm", interp: cached }, 502);
+  if (!r.html) return json({ ok: false, code: "llm", detail: r.error, interp: cached }, 502);
+  const html = r.html;
 
   const interp = { n, html, at: Date.now() };
   await store.setJSON("current", interp);
