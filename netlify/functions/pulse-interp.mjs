@@ -4,6 +4,7 @@
 //   PULSE_SCRIPT_URL, PULSE_SECRET — те же, что у pulse.mjs
 //   ANTHROPIC_API_KEY             — ключ Anthropic API
 //   PULSE_MODEL                   — необязательно, модель (по умолчанию claude-sonnet-5-5)
+//   PULSE_DAILY_LIMIT             — необязательно, сколько раз за 24 часа можно вызвать модель (по умолчанию 50)
 //
 // GET  /pulse/interp → последняя готовая интерпретация {n, html, at} или null
 // POST /pulse/interp → если число ответов изменилось, пишет новую интерпретацию.
@@ -15,6 +16,8 @@ import { getStore } from "@netlify/blobs";
 const MODEL_DEFAULT = "claude-sonnet-5-5";
 const LOCK_MS = 45_000;               // пока идёт генерация, вторую не запускаем
 const COOLDOWN_MS = 20_000;           // не чаще одной генерации в 20 с
+const DAY_MS = 24 * 3600_000;
+const DAILY_LIMIT_DEFAULT = 50;       // вызовов модели за скользящие 24 часа
 const UPSTREAM_TIMEOUT_MS = 9_500;
 const LLM_TIMEOUT_MS = 24_000;        // синхронная функция живёт до ~30 с
 
@@ -59,11 +62,13 @@ function matrix(rows) {
     if (v === "n") m[i].nn++;
     else if (typeof v === "number" && v >= 1 && v <= 7) m[i].st[v - 1]++;
   }));
+  const col = [0, 0, 0, 0, 0, 0, 0];
+  m.forEach(x => x.st.forEach((c, k) => col[k] += c));
   return m.map((x, i) => {
     const tot = x.st.reduce((a, b) => a + b, 0);
     const mean = tot ? x.st.reduce((a, c, k) => a + c * (k + 1), 0) / tot : null;
     return `  ${SHIFTS[i]}: стадии1–7 = [${x.st.join(", ")}], не наблюдаю = ${x.nn}, средняя = ${mean === null ? "—" : mean.toFixed(2)}`;
-  }).join("\n");
+  }).join("\n") + `\n  ИТОГО отметок по стадиям 1–7 (все сдвиги) = [${col.join(", ")}], всего ${col.reduce((a, b) => a + b, 0)}`;
 }
 
 function digest(stats) {
@@ -116,6 +121,8 @@ const SYSTEM = `Ты помогаешь Марине Семехиной (док�
 Правила:
 - Пиши по-русски, просто и точно, для участников конференции. Без канцелярита и без восторгов.
 - Каждое утверждение должно следовать из данных. Не выдумывай причин, которых нельзя увидеть в цифрах; осторожная гипотеза допустима одной фразой и только с «похоже» или «вероятно».
+- Ничего не пересчитывай сам: суммы и средние уже даны в данных, бери их оттуда.
+- В каждом списке не больше четырёх пунктов.
 - Секторы с 1–2 ответами не обобщай: назови их отдельными историями.
 - Не называй организации и не пытайся вычислить конкретных людей.
 - Ту же структуру и примерно тот же объём, что в образце (±20%): пять разделов с теми же заголовками и строка-оговорка в конце.
@@ -147,7 +154,8 @@ async function generate(stats) {
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
       model: env("PULSE_MODEL") || MODEL_DEFAULT,
-      max_tokens: 2000,
+      max_tokens: 6000,                 // потолок на размышления и текст вместе
+      output_config: { effort: "low" }, // текст по готовым цифрам — долго думать не нужно, а функция живёт ~30 с
       system: SYSTEM,
       messages: [{
         role: "user",
@@ -163,7 +171,7 @@ async function generate(stats) {
   }
   const text = (j.content || []).filter(c => c.type === "text").map(c => c.text).join("").replace(/^```(?:html)?\s*|\s*```$/g, "");
   const html = sanitize(text);
-  return html.length > 200 ? { html } : { error: "empty" };
+  return html.length > 200 ? { html } : { error: `empty ${j.stop_reason}` };
 }
 
 function sameOrigin(req) {
@@ -173,7 +181,7 @@ function sameOrigin(req) {
 }
 
 export default async (req) => {
-  const store = getStore("pulse-interp");
+  const store = getStore({ name: "pulse-interp", consistency: "strong" });
   const cached = await store.get("current", { type: "json" }).catch(() => null);
 
   if (req.method === "GET") return json({ ok: true, interp: cached });
@@ -187,10 +195,17 @@ export default async (req) => {
   if (cached && cached.n === n) return json({ ok: true, interp: cached, fresh: false });
   if (n === 0) return json({ ok: false, code: "empty" }, 409);
 
+  // суточный лимит: считаем каждый вызов модели (и удачный, и нет) за последние 24 часа
+  const limit = Math.max(0, parseInt(env("PULSE_DAILY_LIMIT"), 10) || DAILY_LIMIT_DEFAULT);
+  const calls = ((await store.get("calls", { type: "json" }).catch(() => null)) || []).filter(t => Date.now() - t < DAY_MS);
+  if (calls.length >= limit) return json({ ok: false, code: "limit", interp: cached }, 429);
+
   const lock = await store.get("lock", { type: "json" }).catch(() => null);
   const now = Date.now();
   if (lock && now - lock.at < (lock.done ? COOLDOWN_MS : LOCK_MS)) return json({ ok: false, code: "busy", interp: cached }, 429);
   await store.setJSON("lock", { at: now, done: false });
+  calls.push(now);
+  await store.setJSON("calls", calls);
 
   let r;
   try { r = await generate(stats); }
