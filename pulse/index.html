@@ -292,6 +292,18 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
 .modal-card code{display:block;margin-top:14px;font:500 13px/1.4 var(--font-mono);color:var(--cu-muted);word-break:break-all}
 .modal-card .ib{position:absolute;right:14px;top:14px}
 
+/* ---------- ИНТЕРПРЕТАЦИЯ ---------- */
+.interp-msg{margin:14px 0 0;min-height:1.4em;font:500 13px/1.4 var(--font-mono);color:var(--river-700)}
+.interp-msg:empty{margin:0;min-height:0}
+.interp-body{margin-top:22px;display:grid;gap:26px;max-width:54em}
+.interp-body section{border-left:3px solid var(--river-300);padding-left:18px}
+.interp-body h3{margin:0 0 8px;font:700 19px/1.2 var(--font-head);letter-spacing:-.02em}
+.interp-body p,.interp-body ul{margin:0;font-size:16px;line-height:1.55;text-wrap:pretty}
+.interp-body ul{padding-left:1.15em}
+.interp-body li{margin:6px 0}
+.interp-body li::marker{color:var(--cu-violet)}
+.interp-body .interp-foot{font-size:13px;color:var(--cu-muted);font-style:italic}
+
 /* ---------- ТЕЛЕФОН ---------- */
 @media (max-width:860px){
   .shifts{grid-template-columns:1fr}
@@ -475,6 +487,26 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
       </div>
     </div>
     <div class="mx-wrap" id="customMx"></div>
+  </section>
+
+  <!-- ===================== ИНТЕРПРЕТАЦИЯ ===================== -->
+  <section class="card" id="interp" aria-labelledby="interpTitle">
+    <span class="card-tag">03 · интерпретация</span>
+    <div class="card-head">
+      <div>
+        <p class="eyebrow">Интерпретация на текущий момент</p>
+        <h2 class="h2" id="interpTitle">Что видно в ответах</h2>
+      </div>
+      <div class="meta">
+        <div class="total"><b id="interpN">—</b><span id="interpLbl">ответов</span></div>
+        <div>
+          <div class="upd" id="interpKind"></div>
+          <button class="btn btn-s" id="interpBtn" type="button" style="min-height:36px;padding:0 14px;font-size:13px;margin-top:6px">Обновить интерпретацию</button>
+        </div>
+      </div>
+    </div>
+    <p class="interp-msg" id="interpMsg" role="status" aria-live="polite"></p>
+    <div class="interp-body" id="interpBody"></div>
   </section>
 
   <footer class="foot">
@@ -935,6 +967,7 @@ function applyStats(stats, force) {
   view.stats = stats;
   if (stats.open === false && !$("#formBody").hidden) showClosed();
   renderResults();
+  interpHint();
 }
 
 function rowMatches(t) {
@@ -1114,6 +1147,234 @@ $("#qrModal").addEventListener("click", e => { if (e.target.id === "qrModal") cl
 addEventListener("keydown", e => {
   if (e.key === "Escape") { if ($("#qrModal").classList.contains("open")) closeQR(); hideTip(); }
 });
+
+/* =====================================================================
+   ИНТЕРПРЕТАЦИЯ
+   Снимок — текст, написанный вручную на 12 ответах. Кнопка «Обновить
+   интерпретацию» забирает свежие данные и, если число ответов изменилось,
+   собирает новый текст по тем же рубрикам прямо из таблицы ответов.
+   ===================================================================== */
+const INTERP_SNAPSHOT = {
+  n: 12,
+  html: `
+<section><h3>Общая картина</h3>
+<p>Большинство ответов приходится на середину шкалы: «починить существующее», «новые модели на периферии» и «распространение». До масштабирования доходят единицы. Похоже, трансформация уже идёт, но пока в основном по краям системы, а не в её ядре.</p></section>
+<section><h3>Дальше всех продвинулись</h3><ul>
+<li><b>От teaching к learning</b> и <b>Lifelong learning</b>: у них самая высокая средняя стадия, и по обоим есть ответы «масштабирование».</li>
+<li><b>Разделение цепочки</b>: здесь чаще всего отмечали «распространение». Делегировать отдельные звенья уже умеют, но до масштаба этот сдвиг не дошёл ни у кого.</li>
+<li>Меньше всего продвинулись <b>ИИ в образовании</b> и <b>от диплома к портфелю</b>.</li></ul></section>
+<section><h3>Отрицание</h3>
+<p>Отрицание встречается редко, и только в дополнительном образовании. Больше всего его в сдвигах «точно в срок», «от диплома к портфелю» и «ИИ в образовании». Все три касаются продуктовой модели: коротких форматов, ценности сертификата и роли самого курса.</p></section>
+<section><h3>Интересные наблюдения</h3><ul>
+<li>Стадию «запрос на изменения» не отметил почти никто: участники не видят себя в начале пути.</li>
+<li>Самые разные оценки получил ИИ: от «запроса» и «отрицания» до «стандартизации».</li>
+<li>По сдвигу «точно в срок» мнения разошлись сильнее всего: ответы стоят на всех стадиях, от отрицания до масштабирования.</li>
+<li>Один участник добавил свой сдвиг, <b>«Запрос от взрослых»</b>, и сразу поставил его на стадию масштабирования.</li></ul></section>
+<section><h3>Вузы, ДПО и корпоративное обучение</h3><ul>
+<li><b>Вузы</b> (5 ответов): отрицания нет совсем. Ответы делятся на две группы: «починить существующее» и «стандартизация». Педагогические сдвиги (teaching→learning, время→результат, точно в срок) в основном на стадии «починить».</li>
+<li><b>ДПО</b> (8 ответов): самый широкий разброс. Здесь и всё отрицание, и большая часть ответов «масштабирование».</li>
+<li><b>Корпоративное</b> (2 ответа): ответы ровные, на стадиях от «новых моделей» до «стандартизации», без крайностей.</li>
+<li><b>Сходятся</b> в двух сдвигах: «от диплома к портфелю» все видят на стадии новых моделей, «разделение цепочки» — на стадии распространения.</li>
+<li><b>Расходятся</b> в трёх: в teaching→learning вузы ниже, чем ДПО и корпоративный сектор; в lifelong learning вузы на стадии новых моделей, остальные на стадии распространения; по ИИ вузы и корпоративный сектор видят его ближе к стандартизации, а в ДПО оценки разбросаны по всей шкале.</li></ul></section>
+<p class="interp-foot">Ответов немного, участники могли отметить несколько типов образования, а ДПО составляет большую часть выборки. Это пульс нашего зала, а не срез отрасли.</p>`
+};
+
+const ST_TXT = ["запрос на изменения", "отрицание", "починить существующее", "новые модели на периферии", "распространение", "стандартизация", "масштабирование"];
+const SH_TXT = ["teaching → learning", "время → результат", "«точно в срок»", "от диплома к портфелю", "разделение цепочки", "ИИ в образовании", "lifelong learning"];
+const SH_B = ["От teaching к learning", "От времени к результату", "«Точно в срок»", "От диплома к портфелю", "Разделение цепочки", "ИИ в образовании", "Lifelong learning"];
+const EDU_TXT = ["вузы", "СПО", "школы", "ДПО", "корпоративное обучение", "управление образованием", "другие виды образования", "обучающиеся"];
+const EDU_B = ["Вузы", "СПО", "Школы", "ДПО", "Корпоративное", "Управление образованием", "Другие виды", "Обучающиеся"];
+
+const interp = { n: INTERP_SNAPSHOT.n, generated: false };
+const fmt1 = x => x.toFixed(1).replace(".", ",");
+const q = i => `«${ST_TXT[i]}»`;
+const ST_GEN = ["запроса на изменения", "отрицания", "«починить существующее»", "новых моделей на периферии", "распространения", "стандартизации", "масштабирования"];
+const fromTo = (a, b) => `от ${ST_GEN[a]} до ${ST_GEN[b]}`;
+const joinRu = a => a.length <= 1 ? (a[0] || "") : a.slice(0, -1).join(", ") + " и " + a[a.length - 1];
+const nAns = n => `${n} ${plural(n, "ответ", "ответа", "ответов")}`;
+const nMarks = n => `${n} ${plural(n, "отметка", "отметки", "отметок")}`;
+
+/* сводка по набору ответов: по каждому сдвигу — распределение по стадиям, «не наблюдаю», среднее, разброс */
+function interpAgg(rows) {
+  const sh = SHIFTS.map(() => ({ st: [0, 0, 0, 0, 0, 0, 0], nn: 0 }));
+  rows.forEach(r => (r.s || []).forEach((v, i) => {
+    if (!sh[i]) return;
+    if (v === "n") sh[i].nn++;
+    else if (typeof v === "number" && v >= 1 && v <= 7) sh[i].st[v - 1]++;
+  }));
+  const col = [0, 0, 0, 0, 0, 0, 0];
+  sh.forEach(s => {
+    s.tot = s.st.reduce((a, b) => a + b, 0);
+    s.mean = s.tot ? s.st.reduce((a, c, k) => a + c * (k + 1), 0) / s.tot : NaN;
+    s.sd = s.tot ? Math.sqrt(s.st.reduce((a, c, k) => a + c * (k + 1 - s.mean) ** 2, 0) / s.tot) : 0;
+    const mx = Math.max(...s.st);
+    s.modes = mx ? s.st.map((c, k) => c === mx ? k : -1).filter(k => k >= 0) : [];
+    s.mode = s.modes.length === 1 ? s.modes[0] : -1;
+    s.modeShare = s.tot ? mx / s.tot : 0;
+    const used = s.st.map((c, k) => c ? k : -1).filter(k => k >= 0);
+    s.lo = used[0]; s.hi = used[used.length - 1];
+    s.st.forEach((c, k) => col[k] += c);
+  });
+  const grand = col.reduce((a, b) => a + b, 0);
+  const sd = grand ? Math.sqrt(col.reduce((a, c, k) => a + c * (k + 1 - col.reduce((x, y, j) => x + y * (j + 1), 0) / grand) ** 2, 0) / grand) : 0;
+  return { n: rows.length, sh, col, grand, sd };
+}
+
+function buildInterpretation(stats) {
+  const rows = stats.rows || [];
+  const A = interpAgg(rows);
+  if (!A.grand) return `<p>Пока ответов слишком мало для интерпретации.</p>`;
+  const out = [];
+  const sec = (h, body) => out.push(`<section><h3>${h}</h3>${body}</section>`);
+  const ul = items => `<ul>${items.map(x => `<li>${x}</li>`).join("")}</ul>`;
+
+  /* --- Общая картина --- */
+  const byCount = A.col.map((c, k) => k).sort((a, b) => A.col[b] - A.col[a] || a - b);
+  const top3 = byCount.slice(0, 3).sort((a, b) => a - b);
+  const peak = byCount[0];
+  const topShare = Math.round(top3.reduce((a, k) => a + A.col[k], 0) / A.grand * 100);
+  const reading = peak <= 2 ? "Преобладает латание существующего: изменения встраивают в старую модель, а не строят новую."
+    : peak === 3 ? "Похоже, трансформация уже идёт, но пока в основном по краям системы, а не в её ядре."
+    : peak === 4 ? "Новые практики уже распространяются, но до норм и масштаба доходят единицы."
+    : "Многие видят изменения уже закреплёнными в нормах и масштабе.";
+  sec("Общая картина",
+    `<p>${nAns(A.n)}. На стадии ${joinRu(top3.map(q))} приходится ${topShare}% всех отметок, пик — ${q(peak)}. ` +
+    `Масштабирование отмечено ${A.col[6] ? `${A.col[6]} ${plural(A.col[6], "раз", "раза", "раз")} из ${A.grand}` : "ни разу"}. ${reading}</p>`);
+
+  /* --- Дальше всех продвинулись --- */
+  const idx = A.sh.map((s, i) => i).filter(i => A.sh[i].tot);
+  const byMean = idx.slice().sort((a, b) => A.sh[b].mean - A.sh[a].mean);
+  const maxM = A.sh[byMean[0]].mean, minM = A.sh[byMean[byMean.length - 1]].mean;
+  const lead = byMean.filter(i => maxM - A.sh[i].mean <= 0.15).slice(0, 3);
+  const lag = byMean.filter(i => A.sh[i].mean - minM <= 0.15 && !lead.includes(i)).slice(-3);
+  const adv = [];
+  const leadScaled = lead.filter(i => A.sh[i].st[6]);
+  adv.push(`${joinRu(lead.map(i => `<b>${SH_B[i]}</b>`))}: самая высокая средняя стадия (≈${fmt1(maxM)})` +
+    (leadScaled.length ? `${leadScaled.length === lead.length ? (lead.length > 1 ? ", и по всем есть" : ", и есть") : `, у ${joinRu(leadScaled.map(i => SH_TXT[i]))} есть`} ответы «масштабирование».` : "."));
+  idx.filter(i => !lead.includes(i) && !lag.includes(i) && A.sh[i].mode >= 4 && !A.sh[i].st[6]).slice(0, 2).forEach(i =>
+    adv.push(`<b>${SH_B[i]}</b>: чаще всего отмечали ${q(A.sh[i].mode)}, но до масштаба этот сдвиг не дошёл ни у кого.`));
+  if (lag.length) adv.push(`Меньше всего ${lag.length > 1 ? "продвинулись" : "продвинулся сдвиг"} ${joinRu(lag.map(i => `<b>${SH_TXT[i]}</b>`))} (≈${fmt1(A.sh[lag[0]].mean)}).`);
+  sec("Дальше всех продвинулись", ul(adv));
+
+  /* --- Отрицание --- */
+  const c2 = A.col[1];
+  let denial;
+  if (!c2) denial = "Стадию «отрицание» не отметил никто.";
+  else {
+    const who = rows.filter(r => (r.s || []).some(v => v === 2));
+    const secs = EDU.map((_, e) => ({ e, c: who.filter(r => Array.isArray(r.t) && r.t.includes(e)).length })).filter(x => x.c);
+    const shMax = Math.max(...A.sh.map(s => s.st[1]));
+    const where = idx.filter(i => A.sh[i].st[1] === shMax);
+    const shareTxt = c2 / A.grand < 0.12 ? "встречается редко" : c2 / A.grand < 0.25 ? "заметно" : "занимает большую долю ответов";
+    denial = `Отрицание ${shareTxt}: ${nMarks(c2)} от ${who.length} ${plural(who.length, "участника", "участников", "участников")}` +
+      (secs.length === 1 ? `, все — из ${secs[0].e === 3 ? "дополнительного образования" : `сектора «${EDU[secs[0].e]}»`}.`
+        : secs.length ? ` (${secs.map(x => `${EDU_TXT[x.e]} — ${x.c}`).join(", ")}).` : ".") +
+      ` ${where.length > 1 ? "Чаще всего" : "Больше всего"} — в ${where.length > 1 ? "сдвигах" : "сдвиге"} ${joinRu(where.map(i => `«${SH_TXT[i].replace(/[«»]/g, "")}»`))}.`;
+  }
+  sec("Отрицание", `<p>${denial}</p>`);
+
+  /* --- Интересные наблюдения --- */
+  const obs = [];
+  if (A.col[0] / A.grand < 0.05) obs.push(A.col[0] ? `Стадию «запрос на изменения» почти никто не отметил (${A.col[0]}): участники не видят себя в начале пути.` : "Стадию «запрос на изменения» не отметил никто: участники не видят себя в начале пути.");
+  const wide = idx.filter(i => A.sh[i].tot >= 3).sort((a, b) => A.sh[b].sd - A.sh[a].sd);
+  if (wide.length) { const s = A.sh[wide[0]]; obs.push(`Сильнее всего расходятся оценки по сдвигу <b>${SH_TXT[wide[0]]}</b>: ${fromTo(s.lo, s.hi)}.`); }
+  const unan = idx.filter(i => A.sh[i].mode >= 0 && A.sh[i].modeShare >= 0.5 && A.sh[i].tot >= 3).sort((a, b) => A.sh[b].modeShare - A.sh[a].modeShare);
+  if (unan.length) { const s = A.sh[unan[0]]; obs.push(`Больше всего единодушия по сдвигу <b>${SH_TXT[unan[0]]}</b>: ${s.st[s.mode]} из ${s.tot} на стадии ${q(s.mode)}.`); }
+  const nnAll = SHIFTS.map((_, i) => i).filter(i => A.sh[i].nn);
+  if (nnAll.length) obs.push(`Ответ «не наблюдаю такой сдвиг» встречается ${nnAll.length > 1 ? "в сдвигах" : "в сдвиге"} ${joinRu(nnAll.map(i => `«${SH_TXT[i].replace(/[«»]/g, "")}» (${A.sh[i].nn})`))}.`);
+  const groups = new Map();
+  (stats.custom || []).forEach(c => {
+    const k = normKey(c.n); if (!k || !(c.s >= 1 && c.s <= 7)) return;
+    if (!groups.has(k)) groups.set(k, { name: c.n, st: [0, 0, 0, 0, 0, 0, 0], tot: 0 });
+    const g = groups.get(k); g.st[c.s - 1]++; g.tot++;
+  });
+  const cust = [...groups.values()].sort((a, b) => b.tot - a.tot).slice(0, 2);
+  if (cust.length) obs.push(`${cust.length === 1 && cust[0].tot === 1 ? "Один участник добавил свой сдвиг" : "Участники добавили свои сдвиги"}: ${cust.map(g => {
+    const m = g.st.indexOf(Math.max(...g.st));
+    return `<b>«${esc(g.name)}»</b> (${g.tot > 1 ? `чаще всего ${q(m)}` : `стадия ${q(m)}`})`;
+  }).join(", ")}.`);
+  sec("Интересные наблюдения", ul(obs.slice(0, 4)));
+
+  /* --- Сектора --- */
+  const secs = EDU.map((_, e) => ({ e, rows: rows.filter(r => Array.isArray(r.t) && r.t.includes(e)) }))
+    .filter(x => x.rows.length >= 2).map(x => ({ ...x, A: interpAgg(x.rows) }));
+  const small = EDU.map((_, e) => e).filter(e => { const c = rows.filter(r => Array.isArray(r.t) && r.t.includes(e)).length; return c === 1; });
+  if (secs.length) {
+    const items = [];
+    const widest = secs.length > 1 ? secs.slice().sort((a, b) => b.A.sd - a.A.sd)[0].e : -1;
+    const most7 = secs.length > 1 ? secs.slice().sort((a, b) => b.A.col[6] - a.A.col[6])[0] : null;
+    const mostDen = secs.slice().sort((a, b) => b.A.col[1] - a.A.col[1])[0];
+    secs.forEach(x => {
+      const S = x.A, parts = [];
+      parts.push(S.col[1] ? (x === mostDen && S.col[1] === c2 && secs.filter(y => y.A.col[1]).length === 1 ? "здесь всё отрицание" : `отрицание — ${nMarks(S.col[1])}`) : "отрицания нет");
+      const o = S.col.map((c, k) => k).sort((a, b) => S.col[b] - S.col[a] || a - b);
+      const [p1, p2] = o;
+      if (S.col[p2] >= 0.8 * S.col[p1] && Math.abs(p1 - p2) >= 2) parts.push(`ответы делятся на две группы: ${q(Math.min(p1, p2))} и ${q(Math.max(p1, p2))}`);
+      else {
+        const used = S.col.map((c, k) => c ? k : -1).filter(k => k >= 0);
+        parts.push(x.e === widest ? `самый широкий разброс, центр — ${q(p1)}` : used[used.length - 1] - used[0] <= 3 ? `ответы ровные, ${fromTo(used[0], used[used.length - 1])}` : `центр — ${q(p1)}`);
+      }
+      if (most7 && x === most7 && S.col[6] && S.col[6] >= A.col[6] / 2) parts.push(`${S.col[6] === A.col[6] ? "все" : "большая часть"} ответов «масштабирование»`);
+      items.push(`<b>${EDU_B[x.e]}</b> (${nAns(x.rows.length)}): ${parts.join("; ")}.`);
+    });
+    if (secs.length >= 2) {
+      const cmp = idx.map(i => {
+        const ms = secs.map(x => ({ e: x.e, m: x.A.sh[i].mean })).filter(x => !isNaN(x.m));
+        if (ms.length < 2) return null;
+        ms.sort((a, b) => b.m - a.m);
+        return { i, ms, d: ms[0].m - ms[ms.length - 1].m };
+      }).filter(Boolean);
+      const agree = cmp.filter(c => c.d <= 0.75).sort((a, b) => a.d - b.d).slice(0, 3);
+      const differ = cmp.filter(c => c.d >= 1).sort((a, b) => b.d - a.d).slice(0, 3);
+      if (agree.length) items.push(`<b>Сходятся</b>: ${agree.map(c => `${SH_TXT[c.i]} (у всех около стадии ${q(Math.round(A.sh[c.i].mean) - 1)})`).join("; ")}.`);
+      if (differ.length) items.push(`<b>Расходятся</b>: ${differ.map(c => `${SH_TXT[c.i]} — ${c.ms.map(x => `${EDU_TXT[x.e]} ≈${fmt1(x.m)}`).join(", ")}`).join("; ")}.`);
+      if (!agree.length && !differ.length) items.push("Заметных расхождений между секторами по средним стадиям нет.");
+    }
+    if (small.length) items.push(`По одному ответу: ${joinRu(small.map(e => EDU_TXT[e]))} — это отдельные истории, а не статистика.`);
+    sec("Вузы, ДПО и корпоративное обучение", ul(items));
+  }
+
+  /* --- оговорка --- */
+  const big = secs.slice().sort((a, b) => b.rows.length - a.rows.length)[0];
+  out.push(`<p class="interp-foot">${A.n < 30 ? "Ответов немного, у" : "У"}частники могли отметить несколько типов образования${big && big.rows.length / A.n > 0.5 ? `, а ${big.e === 3 ? "ДПО" : EDU_TXT[big.e]} — ${Math.round(big.rows.length / A.n * 100)}% выборки` : ""}. Это пульс нашего зала, а не срез отрасли. Текст собран автоматически по данным опроса; средняя стадия — среднее по шкале 1–7.</p>`);
+  return out.join("\n");
+}
+
+function renderInterp(html, n, generated) {
+  interp.n = n; interp.generated = generated;
+  $("#interpBody").innerHTML = html;
+  $("#interpN").textContent = n;
+  $("#interpLbl").textContent = plural(n, "ответ", "ответа", "ответов");
+  $("#interpKind").textContent = generated ? "собрано автоматически" : "написано вручную";
+}
+
+/* подсказка, если ответов стало больше, чем в показанной интерпретации */
+function interpHint() {
+  if (!view.stats) return;
+  const n = view.stats.rows.length;
+  if (!interp.generated && n !== INTERP_SNAPSHOT.n && store.get("pulse_interp_n") === String(n)) {
+    renderInterp(buildInterpretation(view.stats), n, true);   // этот зритель уже обновлял на таком числе ответов
+  }
+  $("#interpMsg").textContent = n !== interp.n
+    ? `С момента интерпретации ответов стало ${n}. Нажмите «Обновить интерпретацию».`
+    : "";
+}
+
+$("#interpBtn").addEventListener("click", async () => {
+  const b = $("#interpBtn");
+  b.classList.add("busy"); b.setAttribute("aria-busy", "true");
+  $("#interpMsg").textContent = "Проверяем ответы…";
+  await loadStats();
+  b.classList.remove("busy"); b.removeAttribute("aria-busy");
+  if (!view.stats) { $("#interpMsg").textContent = "Не удалось загрузить ответы. Попробуйте ещё раз."; return; }
+  const n = view.stats.rows.length;
+  if (n === interp.n) { $("#interpMsg").textContent = `Новых ответов нет: интерпретация актуальна (${nAns(n)}).`; return; }
+  renderInterp(buildInterpretation(view.stats), n, true);
+  store.set("pulse_interp_n", String(n));
+  $("#interpMsg").textContent = `Интерпретация обновлена: ${nAns(n)}.`;
+});
+
+renderInterp(INTERP_SNAPSHOT.html, INTERP_SNAPSHOT.n, false);
 
 /* =====================================================================
    СТАРТ
