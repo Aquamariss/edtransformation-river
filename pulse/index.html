@@ -292,6 +292,21 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
 .modal-card code{display:block;margin-top:14px;font:500 13px/1.4 var(--font-mono);color:var(--cu-muted);word-break:break-all}
 .modal-card .ib{position:absolute;right:14px;top:14px}
 
+/* ---------- ЧАТЫ ---------- */
+.nav .chats{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 4px 0 13px;white-space:nowrap;font:600 14px/1 var(--font-text);color:var(--cu-muted)}
+.nav .chats i{font:500 11px/1 var(--font-mono);font-style:normal;letter-spacing:.04em;color:var(--cu-violet);opacity:.75;margin-right:1px}
+.nav .chats b{font:inherit}
+.nav .chats .sm{display:none}
+.nav .chats a{height:30px;padding:0 11px;border-color:var(--cu-line-strong);color:var(--cu-ink)}
+.nav .chats a:hover{border-color:var(--cu-violet);color:var(--cu-violet)}
+.discuss{margin:-24px 0 56px;padding:34px 48px;border-radius:28px;background:var(--cu-violet);color:#fff;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.discuss-k{margin:0 0 .6em;font:700 11px/1.2 var(--font-text);letter-spacing:.12em;text-transform:uppercase;color:var(--cu-lime)}
+.discuss-h{margin:0;font:700 clamp(26px,3.6vw,38px)/1.05 var(--font-head);letter-spacing:-.035em}
+.discuss-links{display:flex;gap:12px;flex-wrap:wrap}
+.discuss-btn{background:var(--cu-lime);color:var(--cu-ink);font-weight:700}
+.discuss-btn:hover{background:#fff}
+.discuss-btn span{color:var(--cu-violet)}
+
 /* ---------- ИНТЕРПРЕТАЦИЯ ---------- */
 .interp-msg{margin:14px 0 0;min-height:1.4em;font:500 13px/1.4 var(--font-mono);color:var(--river-700)}
 .interp-msg:empty{margin:0;min-height:0}
@@ -317,6 +332,12 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
   .nav a{height:34px;padding:0 8px;font-size:13px;gap:3px}
   .nav a .lg{display:none}
   .nav a .sm{display:inline}
+  .nav .chats{height:34px;padding:0 4px 0 8px;font-size:13px;gap:4px}
+  .nav .chats .lg,.nav .chats i{display:none}
+  .nav .chats .sm{display:inline}
+  .nav .chats a{height:28px;padding:0 9px}
+  .discuss{padding:26px 22px;margin-top:-30px}
+  .discuss-links,.discuss-btn{width:100%}
   .bar{padding:0 8px;gap:6px}
   .nav a i{display:none}
   .tools .hide-m{display:none}
@@ -383,6 +404,8 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
     <a href="#results" data-sec="results"><i>02</i>Результаты</a>
     <a href="/" target="_blank" rel="noopener" class="ext"><i>03</i><b class="lg">Концепция опроса</b><b class="sm">Концепция</b><span aria-hidden="true">↗</span></a>
     <a href="https://cityuniversity.ru/konf_301026" target="_blank" rel="noopener" class="ext"><i>04</i><b class="lg">Конференция «Река времени»</b><b class="sm">Конференция</b><span aria-hidden="true">↗</span></a>
+    <span class="chats" role="group" aria-label="Чаты для обсуждения"><i>05</i><b class="lg">Чаты для обсуждения:</b><b class="sm">Чаты:</b>
+      <a href="https://t.me/+N_j1DnpvJdAyNzhi" target="_blank" rel="noopener">Телеграм</a><a href="https://max.ru/join/AUddyo8sKDBHbKCpufWzham-0Eef1fU1mE1XfBTLZDI" target="_blank" rel="noopener">Макс</a></span>
   </nav>
   <div class="tools">
     <button class="ib hide-m" id="bQR" type="button" title="QR-код этой страницы" aria-label="QR-код этой страницы"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2.5v2.5M20.5 14.5v6h-3M14.5 20.5h.01" stroke-linecap="round"/></svg></button>
@@ -507,6 +530,18 @@ table.mx{width:100%;border-collapse:separate;border-spacing:2px;table-layout:fix
     </div>
     <p class="interp-msg" id="interpMsg" role="status" aria-live="polite"></p>
     <div class="interp-body" id="interpBody"></div>
+  </section>
+
+  <!-- ===================== ЧАТ УЧАСТНИКОВ ===================== -->
+  <section class="discuss" aria-labelledby="discussTitle">
+    <div>
+      <p class="discuss-k">Продолжим разговор</p>
+      <h2 class="discuss-h" id="discussTitle">Обсудить в чате участников</h2>
+    </div>
+    <div class="discuss-links">
+      <a class="btn discuss-btn" href="https://t.me/+N_j1DnpvJdAyNzhi" target="_blank" rel="noopener">Чат в Телеграм <span aria-hidden="true">↗</span></a>
+      <a class="btn discuss-btn" href="https://max.ru/join/AUddyo8sKDBHbKCpufWzham-0Eef1fU1mE1XfBTLZDI" target="_blank" rel="noopener">Чат в Макс <span aria-hidden="true">↗</span></a>
+    </div>
   </section>
 
   <footer class="foot">
