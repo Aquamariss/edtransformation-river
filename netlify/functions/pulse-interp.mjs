@@ -166,7 +166,7 @@ async function generate(stats) {
   }
   const text = (j.content || []).filter(c => c.type === "text").map(c => c.text).join("").replace(/^```(?:html)?\s*|\s*```$/g, "");
   const html = sanitize(text);
-  return html.length > 200 ? { html } : { error: "empty" };
+  return html.length > 200 ? { html } : { error: `empty ${j.stop_reason} ${text.length} ${JSON.stringify((j.content || []).map(c => c.type))} ${text.slice(0, 80)}` };
 }
 
 function sameOrigin(req) {
@@ -176,7 +176,7 @@ function sameOrigin(req) {
 }
 
 export default async (req) => {
-  const store = getStore("pulse-interp");
+  const store = getStore({ name: "pulse-interp", consistency: "strong" });
   const cached = await store.get("current", { type: "json" }).catch(() => null);
 
   if (req.method === "GET") return json({ ok: true, interp: cached });
